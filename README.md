@@ -19,7 +19,7 @@ sys     0m 59.588s
 ```
 
 #Agregacja 1
-7 najpopularniejszych filmów i seriali
+7 najpopularniejszych filmów i seriali<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg1.js)
 ```
 db.gg.aggregate(
@@ -94,9 +94,10 @@ Wynik
 | The Muppets                                   | 29002       |
 | Captain America: The First Avenger            | 28406       |
 | Avatar                                        | 23238       |
+![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img1.png "")
 
 #Agregacja 2
-7 reżyserów z największą ilością filmów lub seriali
+7 reżyserów z największą ilością filmów lub seriali<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg2.js)
 ```
 db.gg.aggregate(
@@ -178,9 +179,10 @@ Wynik
 | woody allen                                   | 47          |
 | takashi miike                                 | 43          |
 | jesus franco                                  | 43          |
+![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img2.png "")
 
 #Agregacja 3
-7 użytkowników z ilością komentarzy powyżej 49999 (w tym przedziale zmieściło się 5 użytkowników)
+7 użytkowników z ilością komentarzy powyżej 49999 (w tym przedziale zmieściło się 5 użytkowników)<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg3.js)
 ```
 db.gg.aggregate(
@@ -245,9 +247,10 @@ Wynik
 | bangwid                                       | 59261       |
 | zenofmac                                      | 56233       |
 | agentdunham                                   | 55740       |
+![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img3.png "")
 
 #Agregacja 4
-7 seriali z największą ilością polubień
+7 seriali z największą ilością polubień<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg4.js)
 ```
 db.gg.aggregate(
@@ -326,3 +329,4 @@ Wynik
 | Glee                                          | 22490       |
 | How I Met Your Mother                         | 20854       |
 | The Walking Dead                              | 20601       |
+![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img4.png "")
