@@ -1,12 +1,18 @@
 var connection = new Mongo();
 var db = connection.getDB('getglue');
 
+var match = { $match: {"modelName": "movies" || "tv_shows"} };
+var group1 = { $group: {"_id": {"director": "$director", "title": "$title"}, "total": {$sum: 1}} };
+var group2 = { $group: {"_id": "$_id.director", "total": {$sum: 1}} };
+var sort = { $sort: {total: -1} };
+var limit = { $limit : 7};
+
 var results = db.gg.aggregate(
-	{ $match: {"modelName": "movies" || "tv_shows"  } },
-   { $group: {_id: {"dir": "$director", id: "$title"}, total: {$sum: 1}} },
-   { $group: {_id: "$_id.dir" , total: {$sum: 1}} },
-   { $sort: {total: -1} },
-   { $limit : 7}
+	match,
+	group1,
+	group2,
+	sort,
+	limit
 );
 
 printjson(results);
