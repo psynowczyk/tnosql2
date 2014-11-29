@@ -8,6 +8,7 @@
 #Wstęp
 
 Plik z danymi: [GetGlue and Timestamped Event Data](http://getglue-data.s3.amazonaws.com/getglue_sample.tar.gz)
+Wykresy wygenerowane za pomocą [Highcharts](http://www.highcharts.com)
 
 Import danych do bazy:
 ```sh
