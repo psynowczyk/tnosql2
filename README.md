@@ -20,40 +20,33 @@ sys     0m 59.588s
 ```
 
 #Agregacja 1
-7 najpopularniejszych filmów i seriali<br>
+7 najpopularniejszych filmów i seriali poniżej 90000 wystąpień<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg1.js)
 ```js
-var match = { $match: {"modelName": "movies" || "tv_shows"} };
+var match1 = { $match: {$or: [{"modelName": "movies"}, {"modelName": "tv_shows"}]} };
 var group = { $group: {"_id": "$title", "total": {$sum: 1}} };
+var match2 = { $match: {"total": {$lt: 90000}} };
 var sort = { $sort: {"total": -1} };
 var limit = { $limit : 7};
 
 var results = db.gg.aggregate(
-	match,
+	match1,
 	group,
+	match2,
 	sort,
 	limit
 );
 ```
 [PHP](https://github.com/psynowczyk/tnosql2/blob/master/agg1.php)
 ```php
-$out = $collection -> aggregate(
-   array(
-      '$group' => array(
-         '_id' => '$title',
-         'total' => array('$sum' => 1)
-      )
-   ),
-   array(
-      '$match' => array('modelName' => array('$or' => array('modelName' => 'movies', 'modelName' => 'tv_shows')))
-   ),
-   array(
-   	'sort' => array('$total' => -1)
-   ),
-   array(
-   	'limit' => 7
-   )
-);
+$match1 = array('$match' => array('$or' => array(array('modelName' => 'movies'), array('modelName' => 'tv_shows'))));
+$group = array('$group' => array('_id' => '$title', 'total' => array('$sum' => 1)));
+$match2 = array('$match' => array('total' => array('$lt' => 90000)));
+$sort = array('$sort' => array('total' => -1));
+$limit = array('$limit' => 7);
+$pipeline = array($match1, $group, $match2, $sort, $limit);
+
+$out = $collection -> aggregate($pipeline);
 ```
 Wynik
 ```js
@@ -64,28 +57,28 @@ Wynik
 			"total" : 87521
 		},
 		{
+			"_id" : "House",
+			"total" : 85196
+		},
+		{
+			"_id" : "Pretty Little Liars",
+			"total" : 82789
+		},
+		{
+			"_id" : "Family Guy",
+			"total" : 82322
+		},
+		{
+			"_id" : "How I Met Your Mother",
+			"total" : 80002
+		},
+		{
+			"_id" : "Grey's Anatomy",
+			"total" : 79585
+		},
+		{
 			"_id" : "The Hunger Games",
 			"total" : 79340
-		},
-		{
-			"_id" : "Marvel's The Avengers",
-			"total" : 64356
-		},
-		{
-			"_id" : "Harry Potter and the Deathly Hallows: Part II",
-			"total" : 33680
-		},
-		{
-			"_id" : "The Muppets",
-			"total" : 29002
-		},
-		{
-			"_id" : "Captain America: The First Avenger",
-			"total" : 28406
-		},
-		{
-			"_id" : "Avatar",
-			"total" : 23238
 		}
 	],
 	"ok" : 1
@@ -94,12 +87,12 @@ Wynik
 | Tytuł                                         | Popularność |
 |-----------------------------------------------|-------------|
 | The Twilight Saga: Breaking Dawn Part 1       | 87521       |
+| House                                         | 85196       |
+| Pretty Little Liars                           | 82789       |
+| Family Guy                                    | 82322       |
+| How I Met Your Mother                         | 80002       |
+| Grey's Anatomy                                | 79585       |
 | The Hunger Games                              | 79340       |
-| Marvel's The Avengers                         | 64356       |
-| Harry Potter and the Deathly Hallows: Part II | 33680       |
-| The Muppets                                   | 29002       |
-| Captain America: The First Avenger            | 28406       |
-| Avatar                                        | 23238       |
 ![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img1.png "")
 
 #Agregacja 2
