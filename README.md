@@ -105,7 +105,7 @@ Wynik
 7 reżyserów z największą ilością filmów lub seriali<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg2.js)
 ```js
-var match = { $match: {"modelName": "movies" || "tv_shows"} };
+var match = { $match: {"modelName": "movies" || "tv_shows", $and: [{"director": {$ne: "not available"}}, {"director": {$ne: "various directors"}}]} };
 var group1 = { $group: {"_id": {"director": "$director", "title": "$title"}, "total": {$sum: 1}} };
 var group2 = { $group: {"_id": "$_id.director", "total": {$sum: 1}} };
 var sort = { $sort: {total: -1} };
@@ -150,14 +150,6 @@ Wynik
 {
 	"result" : [
 		{
-			"_id" : "not available",
-			"total" : 1474
-		},
-		{
-			"_id" : "various directors",
-			"total" : 54
-		},
-		{
 			"_id" : "alfred hitchcock",
 			"total" : 50
 		},
@@ -170,12 +162,20 @@ Wynik
 			"total" : 47
 		},
 		{
+			"_id" : "jesus franco",
+			"total" : 43
+		},
+		{
 			"_id" : "takashi miike",
 			"total" : 43
 		},
 		{
-			"_id" : "jesus franco",
-			"total" : 43
+			"_id" : "ingmar bergman",
+			"total" : 42
+		},
+		{
+			"_id" : "john ford",
+			"total" : 42
 		}
 	],
 	"ok" : 1
@@ -183,13 +183,13 @@ Wynik
 ```
 | Reżyser                                       | Ilość dzieł |
 |-----------------------------------------------|-------------|
-| not available                                 | 1474        |
-| various directors                             | 54          |
 | alfred hitchcock                              | 50          |
 | michael curtiz                                | 48          |
 | woody allen                                   | 47          |
-| takashi miike                                 | 43          |
 | jesus franco                                  | 43          |
+| takashi miike                                 | 43          |
+| ingmar bergman                                | 42          |
+| john ford                                     | 42          |
 ![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img2.png "")
 
 #Agregacja 3
