@@ -222,23 +222,14 @@ var results = db.gg.aggregate(
 ```
 [PHP](https://github.com/psynowczyk/tnosql2/blob/master/agg3.php)
 ```php
-$out = $collection -> aggregate(
-   array(
-      '$group' => array(
-         '_id' => '$userId',
-         'total' => array('$sum' => 1)
-      )
-   ),
-   array(
-      '$match' => array('total' => array('$gte' => 50000))
-   ),
-   array(
-   	'sort' => array('$total' => -1)
-   ),
-   array(
-   	'limit' => 7
-   )
-);
+$match1 = array('$match' => array('comment' => array('$ne' => '')));
+$group = array('$group' => array('_id' => '$userId', 'total' => array('$sum' => 1)));
+$match2 = array('$match' => array('total' => array('$gte' => 5000)));
+$sort = array('$sort' => array('total' => -1));
+$limit = array('$limit' => 7);
+$pipeline = array($match1, $group, $match2, $sort, $limit);
+
+$out = $collection -> aggregate($pipeline);
 ```
 Wynik
 ```js
