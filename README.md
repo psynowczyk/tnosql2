@@ -7,7 +7,7 @@
 
 #Wstęp
 
-Plik z danymi: [GetGlue and Timestamped Event Data](http://getglue-data.s3.amazonaws.com/getglue_sample.tar.gz)
+Plik z danymi: [GetGlue and Timestamped Event Data](http://getglue-data.s3.amazonaws.com/getglue_sample.tar.gz)<br>
 Wykresy wygenerowane za pomocą [Highcharts](http://www.highcharts.com)
 
 Import danych do bazy:
@@ -99,7 +99,16 @@ Wynik
 7 reżyserów z największą ilością filmów lub seriali<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg2.js)
 ```js
-var match = { $match: {"modelName": "movies" || "tv_shows", $and: [{"director": {$ne: "not available"}}, {"director": {$ne: "various directors"}}]} };
+var match = {
+	$match: {
+		$or: [{"modelName": "movies"}, {"modelName": "tv_shows"}],
+		$and: [
+			{"director": {$ne: "not available"}},
+			{"director": {$ne: "various directors"}},
+			{"director": {$ne: null}}
+		]
+	}
+};
 var group1 = { $group: {"_id": {"director": "$director", "title": "$title"}, "total": {$sum: 1}} };
 var group2 = { $group: {"_id": "$_id.director", "total": {$sum: 1}} };
 var sort = { $sort: {total: -1} };
@@ -115,29 +124,36 @@ var results = db.gg.aggregate(
 ```
 [PHP](https://github.com/psynowczyk/tnosql2/blob/master/agg2.php)
 ```php
-$out = $collection -> aggregate(
-   array(
-      '$match' => array('modelName' => array('$or' => array('modelName' => 'movies', 'modelName' => 'tv_shows')))
-   ),
-   array(
-      '$group' => array(
-         '_id' => array('dir' => '$director', 'id': '$title'),
-         'total' => array('$sum' => 1)
+$match = array(
+   '$match' => array(
+      '$or' => array(
+         array('modelName' => 'movies'),
+         array('modelName' => 'tv_shows')
+      ),
+      '$and' => array(
+         array('director' => array('$ne' => 'not available')),
+         array('director' => array('$ne' => 'various directors')),
+         array('director' => array('$ne' => null))
       )
-   ),
-   array(
-      '$group' => array(
-         '_id' => '$_id.dir',
-         'total' => array('$sum' => 1)
-      )
-   ),
-   array(
-   	'sort' => array('$total' => -1)
-   ),
-   array(
-   	'limit' => 7
    )
 );
+$group1 = array(
+   '$group' => array(
+      '_id' => array('director' => '$director', 'title' => '$title'),
+      'total' => array('$sum' => 1)
+   )
+);
+$group2 = array(
+   '$group' => array(
+      '_id' => '$_id.director',
+      'total' => array('$sum' => 1)
+   )
+);
+$sort = array('$sort' => array('total' => -1));
+$limit = array('$limit' => 7);
+$pipeline = array($match, $group1, $group2, $sort, $limit);
+
+$out = $collection -> aggregate($pipeline);
 ```
 Wynik
 ```js
@@ -145,45 +161,45 @@ Wynik
 	"result" : [
 		{
 			"_id" : "alfred hitchcock",
-			"total" : 50
+			"total" : 136
 		},
 		{
-			"_id" : "michael curtiz",
-			"total" : 48
+			"_id" : "garry marshall",
+			"total" : 108
 		},
 		{
 			"_id" : "woody allen",
-			"total" : 47
+			"total" : 105
 		},
 		{
-			"_id" : "jesus franco",
-			"total" : 43
+			"_id" : "chuck jones",
+			"total" : 98
 		},
 		{
-			"_id" : "takashi miike",
-			"total" : 43
+			"_id" : "errol morris",
+			"total" : 94
 		},
 		{
-			"_id" : "ingmar bergman",
-			"total" : 42
+			"_id" : "peter west",
+			"total" : 93
 		},
 		{
-			"_id" : "john ford",
-			"total" : 42
+			"_id" : "sydney pollack",
+			"total" : 86
 		}
 	],
 	"ok" : 1
 }
 ```
-| Reżyser                                       | Ilość dzieł |
-|-----------------------------------------------|-------------|
-| alfred hitchcock                              | 50          |
-| michael curtiz                                | 48          |
-| woody allen                                   | 47          |
-| jesus franco                                  | 43          |
-| takashi miike                                 | 43          |
-| ingmar bergman                                | 42          |
-| john ford                                     | 42          |
+| Reżyser                                       | Ilość produkcji |
+|-----------------------------------------------|-----------------|
+| alfred hitchcock                              | 136             |
+| garry marshall                                | 108             |
+| woody allen                                   | 105             |
+| chuck jones                                   | 98              |
+| errol morris                                  | 94              |
+| peter west                                    | 93              |
+| sydney pollack                                | 86              |
 ![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img2.png "")
 
 #Agregacja 3

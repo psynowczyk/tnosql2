@@ -2,31 +2,39 @@
 
 $connection = new MongoClient;
 $collection = $connection -> selectDB("getglue") -> selectCollection("gg");
+MongoCursor::$timeout = -1;
 
-$out = $collection -> aggregate(
-   array(
-      '$match' => array('modelName' => array('$or' => array('modelName' => 'movies', 'modelName' => 'tv_shows')))
-   ),
-   array(
-      '$group' => array(
-         '_id' => array('dir' => '$director', 'id': '$title'),
-         'total' => array('$sum' => 1)
+$match = array(
+   '$match' => array(
+      '$or' => array(
+         array('modelName' => 'movies'),
+         array('modelName' => 'tv_shows')
+      ),
+      '$and' => array(
+         array('director' => array('$ne' => 'not available')),
+         array('director' => array('$ne' => 'various directors')),
+         array('director' => array('$ne' => null))
       )
-   ),
-   array(
-      '$group' => array(
-         '_id' => '$_id.dir',
-         'total' => array('$sum' => 1)
-      )
-   ),
-   array(
-   	'sort' => array('$total' => -1)
-   ),
-   array(
-   	'limit' => 7
    )
 );
+$group1 = array(
+   '$group' => array(
+      '_id' => array('director' => '$director', 'title' => '$title'),
+      'total' => array('$sum' => 1)
+   )
+);
+$group2 = array(
+   '$group' => array(
+      '_id' => '$_id.director',
+      'total' => array('$sum' => 1)
+   )
+);
+$sort = array('$sort' => array('total' => -1));
+$limit = array('$limit' => 7);
+$pipeline = array($match, $group1, $group2, $sort, $limit);
 
-echo json_encode($out);
+$out = $collection -> aggregate($pipeline);
+
+echo json_encode($out, JSON_PRETTY_PRINT);
 
 ?>
