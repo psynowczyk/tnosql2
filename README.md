@@ -10,7 +10,7 @@
 Plik z danymi: [GetGlue and Timestamped Event Data](http://getglue-data.s3.amazonaws.com/getglue_sample.tar.gz)
 
 Import danych do bazy:
-```
+```sh
 $ time mongoimport -d getglue -c gg --type json --file getglue.json
 
 real    8m 11.997s
@@ -21,16 +21,21 @@ sys     0m 59.588s
 #Agregacja 1
 7 najpopularniejszych filmów i seriali<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg1.js)
-```
-db.gg.aggregate(
-	{ $group: {_id: "$title", total: {$sum: 1}} },
-	{ $match: {"modelName": "movies" || "tv_shows"} },
-	{ $sort: {total: -1} },
-	{ $limit : 7}
+```js
+var match = { $match: {"modelName": "movies" || "tv_shows"} };
+var group = { $group: {"_id": "$title", "total": {$sum: 1}} };
+var sort = { $sort: {"total": -1} };
+var limit = { $limit : 7};
+
+var results = db.gg.aggregate(
+	match,
+	group,
+	sort,
+	limit
 );
 ```
 [PHP](https://github.com/psynowczyk/tnosql2/blob/master/agg1.php)
-```
+```php
 $out = $collection -> aggregate(
    array(
       '$group' => array(
@@ -50,7 +55,7 @@ $out = $collection -> aggregate(
 );
 ```
 Wynik
-```
+```js
 {
 	"result" : [
 		{
@@ -99,17 +104,23 @@ Wynik
 #Agregacja 2
 7 reżyserów z największą ilością filmów lub seriali<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg2.js)
-```
-db.gg.aggregate(
-	{ $match: {"modelName": "movies" || "tv_shows"  } },
-   { $group: {_id: {"dir": "$director", id: "$title"}, total: {$sum: 1}} },
-   { $group: {_id: "$_id.dir" , total: {$sum: 1}} },
-   { $sort: {total: -1} },
-   { $limit : 7}
+```js
+var match = { $match: {"modelName": "movies" || "tv_shows"} };
+var group1 = { $group: {"_id": {"director": "$director", "title": "$title"}, "total": {$sum: 1}} };
+var group2 = { $group: {"_id": "$_id.director", "total": {$sum: 1}} };
+var sort = { $sort: {total: -1} };
+var limit = { $limit : 7};
+
+var results = db.gg.aggregate(
+	match,
+	group1,
+	group2,
+	sort,
+	limit
 );
 ```
 [PHP](https://github.com/psynowczyk/tnosql2/blob/master/agg2.php)
-```
+```php
 $out = $collection -> aggregate(
    array(
       '$match' => array('modelName' => array('$or' => array('modelName' => 'movies', 'modelName' => 'tv_shows')))
@@ -135,7 +146,7 @@ $out = $collection -> aggregate(
 );
 ```
 Wynik
-```
+```js
 {
 	"result" : [
 		{
@@ -182,18 +193,25 @@ Wynik
 ![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img2.png "")
 
 #Agregacja 3
-7 użytkowników z ilością komentarzy powyżej 49999 (w tym przedziale zmieściło się 5 użytkowników)<br>
+7 użytkowników z ilością komentarzy powyżej 5000<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg3.js)
-```
-db.gg.aggregate(
-	{ $group: {_id: "$userId", total: {$sum: 1}} },
-	{ $match: {total: {$gte: 50000}} },
-	{ $sort: {total: -1} },
-	{ $limit: 7 }
+```js
+var match1 = { $match: {"comment": {$ne: ""}} };
+var group = { $group: {"_id": "$userId", "total": {$sum: 1}} };
+var match2 = { $match: {"total": {$gte: 5000}} };
+var sort = { $sort: {total: -1} };
+var limit = { $limit: 7 };
+
+var results = db.gg.aggregate(
+	match1,
+	group,
+	match2,
+	sort,
+	limit
 );
 ```
 [PHP](https://github.com/psynowczyk/tnosql2/blob/master/agg3.php)
-```
+```php
 $out = $collection -> aggregate(
    array(
       '$group' => array(
@@ -213,56 +231,70 @@ $out = $collection -> aggregate(
 );
 ```
 Wynik
-```
+```js
 {
 	"result" : [
 		{
-			"_id" : "LukeWilliamss",
-			"total" : 696782
-		},
-		{
-			"_id" : "demi_konti",
-			"total" : 68137
-		},
-		{
-			"_id" : "bangwid",
-			"total" : 59261
-		},
-		{
-			"_id" : "zenofmac",
-			"total" : 56233
-		},
-		{
 			"_id" : "agentdunham",
-			"total" : 55740
+			"total" : 18119
+		},
+		{
+			"_id" : "zbj",
+			"total" : 11547
+		},
+		{
+			"_id" : "tedi31",
+			"total" : 9326
+		},
+		{
+			"_id" : "endika",
+			"total" : 9103
+		},
+		{
+			"_id" : "MISSY1",
+			"total" : 8874
+		},
+		{
+			"_id" : "alison_peters",
+			"total" : 8194
+		},
+		{
+			"_id" : "darylrosemd",
+			"total" : 7501
 		}
 	],
 	"ok" : 1
 }
 ```
-| Użytkownik                                    | komentarze  |
+| Użytkownik                                    | Komentarze  |
 |-----------------------------------------------|-------------|
-| LukeWilliamss                                 | 696782      |
-| demi_konti                                    | 68137       |
-| bangwid                                       | 59261       |
-| zenofmac                                      | 56233       |
-| agentdunham                                   | 55740       |
+| agentdunham                                   | 18119       |
+| zbj                                           | 11547       |
+| tedi31                                        | 9326        |
+| endika                                        | 9103        |
+| MISSY1                                        | 8874        |
+| alison_peters                                 | 8194        |
+| darylrosemd                                   | 7501        |
 ![alt text](https://github.com/psynowczyk/tnosql2/blob/master/img3.png "")
 
 #Agregacja 4
 7 seriali z największą ilością polubień<br>
 [JS](https://github.com/psynowczyk/tnosql2/blob/master/agg4.js)
-```
-db.gg.aggregate(
-	{ $match: {"modelName": "tv_shows"} },
-	{ $match: {"action": "Liked"} },
-	{ $group: {_id: "$title", total: {$sum: 1}} },
-	{ $sort: {total: -1} },
-	{ $limit: 7 }
+```js
+var match = { $match: {"modelName": "tv_shows", "action": "Liked"} };
+var group = { $group: {_id: "$title", total: {$sum: 1}} };
+var sort = { $sort: {total: -1} };
+var limit = { $limit: 7 };
+
+var results = db.gg.aggregate(
+	match,
+	group,
+	sort,
+	limit
 );
 ```
 [PHP](https://github.com/psynowczyk/tnosql2/blob/master/agg4.php)
-```
+```php
 $out = $collection -> aggregate(
    array(
       '$match' => array('modelName' => 'tv_shows')
@@ -285,7 +317,7 @@ $out = $collection -> aggregate(
 );
 ```
 Wynik
-```
+```js
 {
 	"result" : [
 		{
